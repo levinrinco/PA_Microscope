@@ -1,0 +1,13 @@
+build/
+dist/
+logs/
+*.exe
+*.obj
+*.o
+moc_*
+ui_*
+*.autogen
+CMakeCache.txt
+CMakeFiles/
+*.user
+.vs/
