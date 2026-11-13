@@ -1,0 +1,31 @@
+# Style matching the existing PA_Microscope sources.
+# Run clang-format only on files you touched to avoid noisy whole-file diffs.
+Language: Cpp
+BasedOnStyle: LLVM
+Standard: c++17
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+ContinuationIndentWidth: 4
+PointerAlignment: Right
+DerivePointerAlignment: false
+AccessModifierOffset: -4
+NamespaceIndentation: None
+SortIncludes: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: false
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false
+SpaceBeforeParens: ControlStatements

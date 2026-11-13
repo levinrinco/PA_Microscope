@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <!--
+  ============================================================================
+  MainWindow.ui — Layout reference
+  ============================================================================
+
+  Overall structure:
+    QMainWindow
+    ├── QMenuBar
+    ├── centralWidget (QVBoxLayout: rootLayout)
+    │   ├── QSplitter (splitter)              ← stretches to fill space
+    │   │   ├── AlineWidget (alineWidget)     ← always visible
+    │   │   ├── BscanWidget (bscanWidget)     ← always visible
+    │   │   └── CscanWidget (cscanWidget)     ← always visible
+    │   └── QGroupBox (controlGroup)          ← fixed height 300px
+    │       ├── Row 1: scan params + buttons + progress
+    │       └── Row 2: three sub-panels
+    │           ├── flowGroup    (debug flow)
+    │           ├── scanSetupGroup (serial, CSV, save)
+    │           └── cardGroup    (card status)
+    └── QStatusBar
+
+  Key layout settings:
+    - rootLayout spacing = 36    ← room for the floating color bars
+    - rootLayout margins = 6     ← window edge padding
+    - controlGroup height = fixed 300px (change min/max if you add/remove widgets)
+    - splitter ratio: Aline 1 : B-scan 3 : C-scan 3 (mode-adjusted)
+
+  How to modify:
+    - To change control panel height: edit controlGroup's minimumSize and
+      maximumSize <height> values together.
+    - To change spacing between widgets and panel: edit rootLayout's spacing.
+    - To add a widget to the control panel: add it to scanRow or bottomRow,
+      then wire it up in MainWindow.cpp setupConnections().
+    - To resize the views: edit setSizes() in MainWindow.cpp constructor.
+    - To use Qt Designer: open this file directly, all custom widgets resolve.
+  ============================================================================
+ -->
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect><x>0</x><y>0</y><width>1400</width><height>900</height></rect>
+  </property>
+  <property name="windowTitle">
+   <string>PA Microscope</string>
+  </property>
+
+  <!-- ===== Menu Bar ===== -->
+  <widget class="QMenuBar" name="menuBar">
+   <widget class="QMenu" name="menuDAQ">
+    <property name="title"><string>采集卡(&amp;D)</string></property>
+    <addaction name="actCardSettings"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title"><string>帮助(&amp;H)</string></property>
+    <addaction name="actAbout"/>
+   </widget>
+   <addaction name="menuDAQ"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <action name="actCardSettings">
+   <property name="text"><string>采集卡设置...</string></property>
+  </action>
+  <action name="actAbout">
+   <property name="text"><string>关于</string></property>
+  </action>
+
+  <!-- ===== Central Widget ===== -->
+  <widget class="QWidget" name="centralWidget">
+
+   <!-- rootLayout: vertical stack. Item 0 stretches, Item 1 is fixed. -->
+   <layout class="QVBoxLayout" name="rootLayout">
+
+    <!-- spacing: gap between splitter area and control panel (pixels) -->
+    <property name="spacing"><number>36</number></property>
+    <!-- margins: window edge padding (left, top, right, bottom) -->
+    <property name="leftMargin"><number>6</number></property>
+    <property name="rightMargin"><number>6</number></property>
+    <property name="topMargin"><number>6</number></property>
+    <property name="bottomMargin"><number>6</number></property>
+
+    <!-- Item 0: stretches to fill all remaining space -->
+    <item>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation"><enum>Qt::Horizontal</enum></property>
+
+      <!-- Sidebar: A-line waveform (OpenGL) -->
+      <widget class="AlineWidget" name="alineWidget">
+       <property name="minimumSize"><size><width>200</width><height>0</height></size></property>
+      </widget>
+
+      <!-- Shared B-scan: raster slice or acquisition-order trajectory interval. -->
+      <widget class="BscanWidget" name="bscanWidget">
+       <property name="minimumSize"><size><width>300</width><height>300</height></size></property>
+      </widget>
+      
+      <!-- Main view: C-scan MIP image (OpenGL) -->
+      <widget class="CscanWidget" name="cscanWidget">
+       <property name="minimumSize"><size><width>400</width><height>400</height></size></property>
+      </widget>
+
+     </widget>
+    </item>
+
+    <!-- Item 1: fixed height — does NOT stretch when window is resized -->
+    <item>
+     <widget class="QGroupBox" name="controlGroup">
+
+      <!-- vsizetype=Fixed + min=max=180: control panel height locked at 180px.
+           To change height: edit BOTH minimumSize and maximumSize <height>
+           to the same value. -->
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize"><size><width>0</width><height>340</height></size></property>
+      <property name="maximumSize"><size><width>16777215</width><height>340</height></size></property>
+      <property name="title"><string>控制面板</string></property>
+
+      <!-- controlLayout: two rows stacked vertically -->
+      <layout class="QVBoxLayout" name="controlLayout">
+
+       <!-- ===== Row 1: scan params + buttons + progress bar ===== -->
+       <item>
+        <layout class="QHBoxLayout" name="scanRow">
+         <item><widget class="QLabel" name="lblScanMode"><property name="text"><string>模式</string></property></widget></item>
+         <item><widget class="QComboBox" name="comboScanMode"/></item>
+         <item><widget class="QLabel" name="lblNFast"><property name="text"><string>快轴</string></property></widget></item>
+         <item><widget class="QSpinBox" name="spinNFast"/></item>
+         <item><widget class="QLabel" name="lblNSlow"><property name="text"><string>慢轴</string></property></widget></item>
+         <item><widget class="QSpinBox" name="spinNSlow"/></item>
+         <item><widget class="QLabel" name="lblDepth"><property name="text"><string>深度</string></property></widget></item>
+         <item><widget class="QSpinBox" name="spinDepth"/></item>
+         <item><widget class="QLabel" name="lblWinOff"><property name="text"><string>偏移</string></property></widget></item>
+         <item><widget class="QSpinBox" name="spinWinOffset"/></item>
+         <item><widget class="QLabel" name="lblImgSize"><property name="text"><string>网格</string></property></widget></item>
+         <item><widget class="QSpinBox" name="spinImgW"/></item>
+         <item><widget class="QSpinBox" name="spinImgH"/></item>
+         <item><widget class="QCheckBox" name="chkContinuous"><property name="text"><string>连续采集</string></property><property name="toolTip"><string>每帧完整刷新，自动循环</string></property></widget></item>
+         <item><widget class="QCheckBox" name="chkSwapXY"><property name="text"><string>X/Y交换</string></property><property name="toolTip"><string>交换轨迹的X和Y坐标</string></property></widget></item>
+         <item><widget class="QPushButton" name="btnScanStart"><property name="text"><string>▶ 开始</string></property></widget></item>
+         <item><widget class="QPushButton" name="btnScanStop"><property name="text"><string>■ 停止</string></property></widget></item>
+         <item><widget class="QProgressBar" name="progressScan"><property name="minimum"><number>0</number></property><property name="maximum"><number>100</number></property><property name="value"><number>0</number></property><property name="format"><string>扫描 %p%</string></property></widget></item>
+        </layout>
+       </item>
+
+       <item>
+        <layout class="QHBoxLayout" name="bscanRangeRow">
+         <item><widget class="QLabel" name="lblBscanRange"><property name="text"><string>轨迹 B-scan 点序号</string></property></widget></item>
+         <item><widget class="QSpinBox" name="spinBscanStart"><property name="minimum"><number>1</number></property><property name="maximum"><number>2147483647</number></property><property name="keyboardTracking"><bool>false</bool></property><property name="prefix"><string>起点 </string></property></widget></item>
+         <item><widget class="QSpinBox" name="spinBscanEnd"><property name="minimum"><number>1</number></property><property name="maximum"><number>2147483647</number></property><property name="value"><number>1000</number></property><property name="keyboardTracking"><bool>false</bool></property><property name="prefix"><string>终点 </string></property></widget></item>
+         <item><widget class="QLabel" name="labelBscanInfo"><property name="text"><string>序号从 1 开始，包含两端；连续采集中修改于下一帧生效</string></property></widget></item>
+         <item><spacer name="bscanRangeSpacer"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="sizeHint" stdset="0"><size><width>0</width><height>0</height></size></property></spacer></item>
+        </layout>
+       </item>
+
+       <!-- ===== Row 2: three sub-panels side by side ===== -->
+       <item>
+        <layout class="QHBoxLayout" name="bottomRow">
+
+         <!-- Panel A: Debug flow control (card/FPGA start/stop) -->
+         <item>
+          <widget class="QGroupBox" name="flowGroup">
+           <property name="title"><string>操作流程（仅调试）</string></property>
+           <layout class="QVBoxLayout" name="flowLayout">
+            <item><widget class="QLabel" name="lblFlow1"><property name="text"><string>启动: ①采集开始 → ②FPGA开始</string></property></widget></item>
+            <item>
+             <layout class="QHBoxLayout" name="flowBtnRow1">
+              <item><widget class="QPushButton" name="btnCardStart"><property name="text"><string>① 采集开始</string></property></widget></item>
+              <item><widget class="QPushButton" name="btnFpgaStart"><property name="text"><string>② FPGA 开始 (F1)</string></property></widget></item>
+             </layout>
+            </item>
+            <item><widget class="QLabel" name="lblFlow2"><property name="text"><string>停止: ③FPGA停止 → ④采集停止</string></property></widget></item>
+            <item>
+             <layout class="QHBoxLayout" name="flowBtnRow2">
+              <item><widget class="QPushButton" name="btnFpgaStop"><property name="text"><string>③ FPGA 停止 (F0)</string></property></widget></item>
+              <item><widget class="QPushButton" name="btnCardStop"><property name="text"><string>④ 采集停止</string></property></widget></item>
+             </layout>
+            </item>
+            <item><widget class="QPushButton" name="btnForceTrig"><property name="text"><string>强制触发</string></property></widget></item>
+            <item><widget class="QLabel" name="labelScanState"><property name="text"><string>状态: 空闲</string></property></widget></item>
+           </layout>
+          </widget>
+         </item>
+
+         <!-- Panel B: Scan setup (serial, CSV, save path, counters) -->
+         <item>
+          <widget class="QGroupBox" name="scanSetupGroup">
+           <property name="title"><string>扫描设置</string></property>
+           <layout class="QVBoxLayout" name="scanSetupLayout">
+            <item>
+             <layout class="QHBoxLayout" name="portRow">
+              <item><widget class="QLabel" name="lblPort"><property name="text"><string>串口:</string></property></widget></item>
+              <item><widget class="QComboBox" name="comboSerialPort"/></item>
+              <item><widget class="QLabel" name="labelSerialStatus"><property name="text"><string>未打开</string></property></widget></item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="csvRow">
+              <item><widget class="QLabel" name="lblCsv"><property name="text"><string>轨迹:</string></property></widget></item>
+              <item><widget class="QLineEdit" name="editCsvPath"><property name="placeholderText"><string>选择螺旋轨迹 CSV 文件…</string></property></widget></item>
+              <item><widget class="QPushButton" name="btnBrowseCsv"><property name="text"><string>浏览</string></property></widget></item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="saveOptRow">
+              <item><widget class="QLabel" name="lblSaveOpts"><property name="text"><string>保存选项</string></property><property name="styleSheet"><string>font-weight: bold;</string></property></widget></item>
+              <item><widget class="QCheckBox" name="chkRasterDat"><property name="text"><string>DAT</string></property></widget></item>
+              <item><widget class="QCheckBox" name="chkRasterPng"><property name="text"><string>PNG 强度</string></property></widget></item>
+              <item><widget class="QCheckBox" name="chkRasterPngDepth"><property name="text"><string>PNG 深度</string></property><property name="toolTip"><string>光栅：保存深度编码的 C-scan（depth_XXXXX.png），配色与量程跟「显示设置 → 深度编码」一致</string></property></widget></item>
+              <item><widget class="QCheckBox" name="chkTrajNpy"><property name="text"><string>NPY</string></property></widget></item>
+              <item><widget class="QCheckBox" name="chkTrajPcd"><property name="text"><string>PCD</string></property></widget></item>
+              <item><widget class="QCheckBox" name="chkTrajPng"><property name="text"><string>PNG 强度</string></property></widget></item>
+              <item><widget class="QCheckBox" name="chkTrajPngDepth"><property name="text"><string>PNG 深度</string></property><property name="toolTip"><string>轨迹：保存深度编码的 MIP（depth_XXXXX.png）</string></property></widget></item>
+              <item><widget class="QCheckBox" name="chkTrajDat"><property name="text"><string>DAT</string></property></widget></item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="pathRow">
+              <item><widget class="QLineEdit" name="editSavePath"><property name="placeholderText"><string>选择数据保存目录…</string></property></widget></item>
+              <item><widget class="QPushButton" name="btnBrowse"><property name="text"><string>浏览</string></property></widget></item>
+             </layout>
+            </item>
+            <item><widget class="QLabel" name="labelAlineCount"><property name="text"><string>A-line: 0 / 0</string></property></widget></item>
+            <item><widget class="QLabel" name="labelSavedCount"><property name="text"><string>Saved: 0 / 0</string></property></widget></item>
+           </layout>
+          </widget>
+         </item>
+
+         <!-- Panel C: Card status display -->
+         <item>
+          <widget class="QGroupBox" name="cardGroup">
+           <property name="title"><string>采集卡状态</string></property>
+           <layout class="QFormLayout" name="cardForm">
+            <item row="0" column="0"><widget class="QLabel" name="lblModel"><property name="text"><string>型号:</string></property></widget></item>
+            <item row="0" column="1"><widget class="QLabel" name="labelCardType"><property name="text"><string>—</string></property></widget></item>
+            <item row="1" column="0"><widget class="QLabel" name="lblSN"><property name="text"><string>序列号:</string></property></widget></item>
+            <item row="1" column="1"><widget class="QLabel" name="labelSerialNo"><property name="text"><string>—</string></property></widget></item>
+            <item row="2" column="0"><widget class="QLabel" name="lblMem"><property name="text"><string>内存:</string></property></widget></item>
+            <item row="2" column="1"><widget class="QLabel" name="labelMemSize"><property name="text"><string>—</string></property></widget></item>
+            <item row="3" column="0"><widget class="QLabel" name="lblSt"><property name="text"><string>状态:</string></property></widget></item>
+            <item row="3" column="1"><widget class="QLabel" name="labelCardStatus"><property name="text"><string>未连接</string></property></widget></item>
+            <item row="4" column="0"><widget class="QLabel" name="lblFIFO"><property name="text"><string>FIFO:</string></property></widget></item>
+            <item row="4" column="1"><widget class="QProgressBar" name="fifoFillBar"><property name="minimum"><number>0</number></property><property name="maximum"><number>1000</number></property><property name="value"><number>0</number></property><property name="format"><string>%p‰</string></property></widget></item>
+            <item row="5" column="0"><widget class="QLabel" name="lblErr"><property name="text"><string>错误:</string></property></widget></item>
+            <item row="5" column="1"><widget class="QLabel" name="labelCardError"><property name="text"><string>—</string></property></widget></item>
+           </layout>
+          </widget>
+         </item>
+
+        </layout>
+       </item>
+
+      </layout>
+     </widget>
+    </item>
+
+   </layout>
+  </widget>
+
+  <!-- ===== Status Bar ===== -->
+  <widget class="QStatusBar" name="statusBar"/>
+
+ </widget>
+
+ <!-- ===== Custom Widgets (for Qt Designer) ===== -->
+ <customwidgets>
+  <customwidget>
+   <class>AlineWidget</class>
+   <extends>QWidget</extends>
+   <header>AlineWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>BscanWidget</class>
+   <extends>QWidget</extends>
+   <header>BscanWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CscanWidget</class>
+   <extends>QWidget</extends>
+   <header>CscanWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

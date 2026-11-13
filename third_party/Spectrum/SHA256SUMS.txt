@@ -1,0 +1,11 @@
+# Spectrum SDK header checksums (single source of truth for both platforms).
+#
+# Verify from this directory:
+#   sha256sum -c SHA256SUMS.txt
+#
+# On Windows, compare individually, for example:
+#   certutil -hashfile include\dlltyp.h SHA256
+8e81f313e3e68652789dd0928d516bebc8ab8558cff3815e59c2bc2d34fb332e  include/dlltyp.h
+a5b80c1f4d424505ec6ebf4d4238c53ca4464e1b73934f1245ba17caf77f4531  include/regs.h
+65a0a4364e4e299ba8057149b3b39de68c099228312bb1a97f5ec053d104c7db  include/spcerr.h
+db10e7e2fb436fbda35872a7baf4334bf6c013a10582e50f79172a44bb8e87b8  include/spcm_drv.h

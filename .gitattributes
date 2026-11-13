@@ -1,0 +1,27 @@
+# Line-ending policy.
+#
+# Some Windows machines use core.autocrlf=true system-wide, which would silently
+# rewrite LF to CRLF on checkout. The Spectrum SDK header checksums must survive
+# a fresh clone byte-for-byte, so the policy is pinned here instead of relying
+# on each machine's Git configuration.
+
+* text=auto eol=lf
+
+# Batch/PowerShell files are consumed by Windows tools; keep them CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Spectrum SDK headers and local runtime binaries are checksummed and must not
+# undergo any line-ending conversion.
+win/lib/**                      -text
+linux/lib/**                    -text
+third_party/Spectrum/include/** -text
+
+# Binary assets are never text-processed.
+*.so    binary
+*.lib   binary
+*.dll   binary
+*.exp   binary
+*.png   binary
+*.ico   binary

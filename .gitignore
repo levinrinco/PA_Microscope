@@ -1,0 +1,68 @@
+# ---- Build outputs ----
+build/
+build-*/
+linux/build/
+linux/build-*/
+win/build/
+win/build-*/
+linux/dist/
+win/dist/
+win/source-dist/
+dist/
+logs/
+
+# ---- Compiled objects / binaries ----
+*.o
+*.obj
+*.so
+*.so.*
+*.a
+*.exe
+*.pdb
+*.ilk
+moc_*
+ui_*
+*.autogen
+
+# ---- CMake / IDE ----
+CMakeCache.txt
+CMakeFiles/
+CMakeUserPresets.json
+cmake-build-*/
+compile_commands.json
+.cache/
+*.user
+*.user.*
+*.suo
+.vs/
+.vscode/
+.idea/
+
+# ---- OS junk ----
+Thumbs.db
+Desktop.ini
+desktop.ini
+*.stackdump
+.DS_Store
+
+# ---- Runtime data / exports (never commit acquisitions) ----
+*.csv
+*.npy
+*.pcd
+*.dat
+*.png
+*.jpg
+
+# The depth palette swatch is a source-controlled reference image, not data.
+!depth_palettes.png
+
+# ---- Spectrum SDK binaries ----
+# Runtime libraries are local, exactly like the Linux .so. They are never
+# committed and never included in source packages.
+# Linux: linux/lib/libspcm_linux.so
+# Windows: win/lib/spcm_win64_msvcpp.lib and win/lib/spcm_win64.dll
+# If your Spectrum licence allows redistribution, remove these rules and commit
+# the files explicitly.
+*.dll
+*.lib
+*.exp

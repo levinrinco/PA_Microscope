@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  linux:
+    name: Linux tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake ninja-build \
+            qt6-base-dev qt6-serialport-dev qt6-qpa-plugins libgl1-mesa-dev
+      - name: Configure
+        run: cmake --preset linux-tests
+      - name: Build
+        run: cmake --build --preset linux-tests
+      - name: Test
+        run: ctest --preset linux-tests
+
+  windows:
+    name: Windows tests
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          arch: 'win64_msvc2022_64'
+          modules: 'qtserialport'
+          cache: true
+      - name: Configure
+        run: |
+          $env:QT_ROOT = $env:QT_ROOT_DIR
+          cmake --preset windows-tests
+      - name: Build
+        run: cmake --build --preset windows-tests
+      - name: Test
+        run: |
+          $env:QT_PLUGIN_PATH = "$env:QT_ROOT_DIR\plugins"
+          ctest --preset windows-tests

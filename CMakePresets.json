@@ -1,0 +1,100 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "cacheVariables": {
+        "BUILD_TESTING": "ON"
+      }
+    },
+    {
+      "name": "linux-tests",
+      "displayName": "Linux offline tests (no Spectrum SDK)",
+      "inherits": "base",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/linux/build-tests",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "PA_BUILD_APP": "OFF"
+      }
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux Release (full app, requires SDK .so)",
+      "inherits": "base",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/linux/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "PA_BUILD_APP": "ON"
+      }
+    },
+    {
+      "name": "windows-tests",
+      "displayName": "Windows x64 offline tests (no Spectrum SDK)",
+      "inherits": "base",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/win/build-tests",
+      "cacheVariables": {
+        "PA_BUILD_APP": "OFF",
+        "CMAKE_PREFIX_PATH": "$env{QT_ROOT}"
+      }
+    },
+    {
+      "name": "windows-release",
+      "displayName": "Windows x64 Release (full app, requires SDK lib/DLL)",
+      "inherits": "base",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/win/build",
+      "cacheVariables": {
+        "PA_BUILD_APP": "ON",
+        "CMAKE_PREFIX_PATH": "$env{QT_ROOT}"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux-tests",
+      "configurePreset": "linux-tests"
+    },
+    {
+      "name": "linux-release",
+      "configurePreset": "linux-release"
+    },
+    {
+      "name": "windows-tests",
+      "configurePreset": "windows-tests",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-release",
+      "configurePreset": "windows-release",
+      "configuration": "Release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "linux-tests",
+      "configurePreset": "linux-tests",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "windows-tests",
+      "configurePreset": "windows-tests",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}
